@@ -74,7 +74,11 @@ const EditProgramListingGeneralPanel = props => {
           const updateValues = {
             title: title.trim(),
             description,
-            publicData: { tags: tags, hours: hours === customHoursMessage ? customHours : hours, difficulty },
+            publicData: {
+              tags: tags,
+              hours: hours === customHoursMessage ? +customHours : +hours,
+              difficulty,
+            },
           };
 
           onSubmit(updateValues);

@@ -144,13 +144,29 @@ export const filters = [
     },
   },
   {
+    id: 'hours',
+    label: 'Hours',
+    type: 'PriceFilter',
+    group: 'primary',
+    // Note: PriceFilter is fixed filter,
+    // you can't change "queryParamNames: ['price'],"
+    queryParamNames: ['hours'],
+    // Price filter configuration
+    // Note: unlike most prices this is not handled in subunits
+    config: {
+      min: 0,
+      max: 100,
+      step: 1,
+    },
+  },
+  {
     id: 'difficulty',
     label: 'Difficulty',
     type: 'SelectMultipleFilter',
     group: 'secondary',
     queryParamNames: ['pub_difficulty'],
     config: {
-      searchMode: 'has_all',
+      searchMode: 'has_any',
       options: [
         { key: 'beginer', label: 'Beginer' },
         { key: 'intermediate', label: 'Intermediate' },
