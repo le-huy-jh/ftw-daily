@@ -6,7 +6,7 @@ import config from '../../config';
 import routeConfiguration from '../../routeConfiguration';
 import { FormattedMessage } from '../../util/reactIntl';
 import { createResourceLocatorString } from '../../util/routes';
-import { isAnyFilterActive } from '../../util/search';
+import { isAnyFilterActive, parseSelectFilterOptions } from '../../util/search';
 import { propTypes } from '../../util/types';
 import {
   SearchResultsPanel,
@@ -15,11 +15,13 @@ import {
   SearchFiltersSecondary,
   SortBy,
 } from '../../components';
+import { parse } from '../../util/urlHelpers';
 
 import FilterComponent from './FilterComponent';
-import { validFilterParams } from './SearchPage.helpers';
+import { checkSelectOnsiteOption, validFilterParams } from './SearchPage.helpers';
 
 import css from './SearchPage.module.css';
+import { TopbarSearchForm } from '../../forms';
 
 // Primary filters have their content in dropdown-popup.
 // With this offset we move the dropdown to the left a few pixels on desktop layout.
@@ -48,8 +50,11 @@ const cleanSearchFromConflictingParams = (searchParams, sortConfig, filterConfig
 class MainPanel extends Component {
   constructor(props) {
     super(props);
-    this.state = { isSecondaryFiltersOpen: false, currentQueryParams: props.urlQueryParams };
-
+    this.state = {
+      isSecondaryFiltersOpen: false,
+      currentQueryParams: props.urlQueryParams,
+    };
+    this.isSearchLocationShow = props.isInitialSearchLocationShow;
     this.applyFilters = this.applyFilters.bind(this);
     this.cancelFilters = this.cancelFilters.bind(this);
     this.resetAll = this.resetAll.bind(this);
@@ -59,6 +64,8 @@ class MainPanel extends Component {
 
     // SortBy
     this.handleSortBy = this.handleSortBy.bind(this);
+
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   // Apply the filters by redirecting to SearchPage with new filters.
@@ -149,6 +156,20 @@ class MainPanel extends Component {
     history.push(createResourceLocatorString('SearchPage', routeConfiguration(), {}, queryParams));
   }
 
+  handleSubmit(values) {
+    const { currentSearchParams, history } = this.props;
+    const { search, selectedPlace } = values.location;
+    const { origin, bounds } = selectedPlace;
+    const originMaybe = config.sortSearchByDistance ? { origin } : {};
+    const searchParams = {
+      ...currentSearchParams,
+      ...originMaybe,
+      address: search,
+      bounds,
+    };
+    history.push(createResourceLocatorString('SearchPage', routeConfiguration(), {}, searchParams));
+  }
+
   render() {
     const {
       className,
@@ -168,6 +189,8 @@ class MainPanel extends Component {
       showAsModalMaxWidth,
       filterConfig,
       sortConfig,
+      onToggleOnsiteOption,
+      location,
     } = this.props;
 
     const primaryFilters = filterConfig.filter(f => f.group === 'primary');
@@ -227,6 +250,35 @@ class MainPanel extends Component {
 
     const classes = classNames(rootClassName || css.searchResultContainer, className);
 
+    // Get initial location from URL
+    const { address, origin, bounds } = parse(location.search, {
+      latlng: ['origin'],
+      latlngBounds: ['bounds'],
+    });
+    const locationFieldsPresent = config.sortSearchByDistance
+      ? address && origin && bounds
+      : address && bounds;
+    const initialSearchFormValues = {
+      location: locationFieldsPresent
+        ? {
+            search: address,
+            selectedPlace: { address, origin, bounds },
+          }
+        : null,
+    };
+
+    // show or hide location search when check or uncheck on-site
+    const { currentQueryParams } = this.state;
+    if (currentQueryParams.pub_typeLocation) {
+      this.isSearchLocationShow = checkSelectOnsiteOption(currentQueryParams);
+    } else {
+      this.isSearchLocationShow = false;
+    }
+
+    const searchLocation = this.isSearchLocationShow && (
+      <TopbarSearchForm onSubmit={this.handleSubmit} initialValues={initialSearchFormValues} />
+    );
+
     return (
       <div className={classes}>
         <SearchFiltersPrimary
@@ -283,6 +335,7 @@ class MainPanel extends Component {
               />
             );
           })}
+          {searchLocation}
         </SearchFiltersMobile>
         {isSecondaryFiltersOpen ? (
           <div className={classNames(css.searchFiltersPanel)}>
@@ -304,9 +357,11 @@ class MainPanel extends Component {
                     initialValues={this.initialValues}
                     getHandleChangedValueFn={this.getHandleChangedValueFn}
                     showAsPopup={false}
+                    onToggleOnsiteOption={onToggleOnsiteOption}
                   />
                 );
               })}
+              {searchLocation}
             </SearchFiltersSecondary>
           </div>
         ) : (
@@ -367,6 +422,9 @@ MainPanel.propTypes = {
 
   history: shape({
     push: func.isRequired,
+  }).isRequired,
+  location: shape({
+    search: string.isRequired,
   }).isRequired,
 };
 

@@ -23,9 +23,11 @@ import {
   validURLParamsForExtendedData,
   validFilterParams,
   createSearchResultSchema,
+  checkSelectOnsiteOption,
 } from './SearchPage.helpers';
 import MainPanel from './MainPanel';
 import css from './SearchPage.module.css';
+import { parseSelectFilterOptions } from '../../util/search';
 
 const MODAL_BREAKPOINT = 768; // Search is in modal on mobile layout
 const SEARCH_WITH_MAP_DEBOUNCE = 300; // Little bit of debounce before search is initiated.
@@ -38,6 +40,8 @@ export class SearchPageComponent extends Component {
       isSearchMapOpenOnMobile: props.tab === 'map',
       isMobileModalOpen: false,
     };
+
+    this.isInitialSearchLocationShow = false;
 
     this.searchMapListingsInProgress = false;
 
@@ -155,6 +159,11 @@ export class SearchPageComponent extends Component {
       ? classNames(css.topbarBehindModal, css.topbar)
       : css.topbar;
 
+    // check select on-site in url
+    if (validQueryParams && 'pub_typeLocation' in validQueryParams) {
+      checkSelectOnsiteOption(validQueryParams);
+    }
+
     // N.B. openMobileMap button is sticky.
     // For some reason, stickyness doesn't work on Safari, if the element is <button>
     return (
@@ -171,6 +180,8 @@ export class SearchPageComponent extends Component {
         />
         <div className={css.container}>
           <MainPanel
+            isInitialSearchLocationShow={this.isInitialSearchLocationShow}
+            currentSearchParams={urlQueryParams}
             urlQueryParams={validQueryParams}
             listings={listings}
             searchInProgress={searchInProgress}
@@ -185,6 +196,7 @@ export class SearchPageComponent extends Component {
             searchParamsForPagination={parse(location.search)}
             showAsModalMaxWidth={MODAL_BREAKPOINT}
             history={history}
+            location={location}
           />
           <ModalInMobile
             className={css.mapPanel}

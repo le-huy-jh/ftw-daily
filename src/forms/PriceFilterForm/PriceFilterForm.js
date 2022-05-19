@@ -112,6 +112,7 @@ const PriceFilterFormComponent = props => {
           [css.plain]: !showAsPopup,
           [css.isOpen]: !showAsPopup && isOpen,
         });
+        const idOfFilter = id.split('.')[1];
 
         return (
           <Form
@@ -123,7 +124,11 @@ const PriceFilterFormComponent = props => {
           >
             <div className={css.contentWrapper}>
               <span className={css.label}>
-                <FormattedMessage id="PriceFilterForm.label" />
+                {idOfFilter === 'hours' ? (
+                  <FormattedMessage id="HoursFilterForm.label" />
+                ) : (
+                  <FormattedMessage id="PriceFilterForm.label" />
+                )}
               </span>
               <div className={css.inputsWrapper}>
                 <Field

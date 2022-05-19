@@ -182,7 +182,7 @@ export const filters = [
     group: 'secondary',
     queryParamNames: ['pub_typeLocation'],
     config: {
-      searchMode: 'has_all',
+      searchMode: 'has_any',
       options: [
         { key: 'online', label: 'Online' },
         { key: 'on-site', label: 'On-site' },

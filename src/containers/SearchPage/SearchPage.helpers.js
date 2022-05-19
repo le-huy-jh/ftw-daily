@@ -165,3 +165,9 @@ export const createSearchResultSchema = (listings, address, intl) => {
     },
   };
 };
+
+export const checkSelectOnsiteOption = (currentQueryParams) => {
+  const onSiteSelection = 'on-site';
+  const typeLocationSelected = parseSelectFilterOptions(currentQueryParams.pub_typeLocation);
+  return typeLocationSelected.includes(onSiteSelection)
+};

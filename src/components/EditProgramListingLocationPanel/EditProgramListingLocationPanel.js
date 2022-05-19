@@ -88,6 +88,7 @@ const EditProgramListingLocationPanel = props => {
             });
           } else {
             updateValues.publicData = { typeLocation, location: '' };
+            updateValues.geolocation = null;
             setInitialValues({ typeLocation, location: null });
           }
           onSubmit(updateValues);

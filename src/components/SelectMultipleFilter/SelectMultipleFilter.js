@@ -89,6 +89,7 @@ class SelectMultipleFilter extends Component {
       searchMode,
       intl,
       showAsPopup,
+      onToggleOnsiteOption,
       ...rest
     } = this.props;
 
@@ -98,8 +99,8 @@ class SelectMultipleFilter extends Component {
     const hasInitialValues = !!initialValues && !!initialValues[queryParamName];
     // Parse options from param strings like "has_all:a,b,c" or "a,b,c"
     const selectedOptions = hasInitialValues
-      ? parseSelectFilterOptions(initialValues[queryParamName])
-      : [];
+    ? parseSelectFilterOptions(initialValues[queryParamName])
+    : [];
 
     const labelForPopup = hasInitialValues
       ? intl.formatMessage(
