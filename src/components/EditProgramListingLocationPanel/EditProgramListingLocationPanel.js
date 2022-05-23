@@ -3,10 +3,9 @@ import { bool, func, object, string } from 'prop-types';
 import classNames from 'classnames';
 import { FormattedMessage } from '../../util/reactIntl';
 import { ensureOwnListing } from '../../util/data';
-import { findOptionsForSelectFilter } from '../../util/search';
 import { LISTING_STATE_DRAFT } from '../../util/types';
 import { ListingLink } from '..';
-import { EditListingDescriptionForm, EditProgramListingLocationForm } from '../../forms';
+import { EditProgramListingLocationForm } from '../../forms';
 import config from '../../config';
 
 import css from './EditProgramListingLocationPanel.module.css';
@@ -73,9 +72,8 @@ const EditProgramListingLocationPanel = props => {
         saveActionMsg={submitButtonText}
         onSubmit={values => {
           const { location = {}, typeLocation = [] } = values;
-          const onSiteSelection = 'on-site';
           const updateValues = {};
-          if (typeLocation.includes(onSiteSelection)) {
+          if (typeLocation.includes(config.onSiteSelection)) {
             const {
               selectedPlace: { address, origin },
             } = location;

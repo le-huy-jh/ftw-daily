@@ -47,11 +47,11 @@ const EditProgramListingAvailabilityPanel = props => {
       <h1 className={css.title}>
         {isPublished ? (
           <FormattedMessage
-            id="EditListingAvailabilityPanel.title"
+            id="EditProgramListingAvailabilityPanel.title"
             values={{ listingTitle: <ListingLink listing={listing} /> }}
           />
         ) : (
-          <FormattedMessage id="EditListingAvailabilityPanel.createListingTitle" />
+          <FormattedMessage id="EditProgramListingAvailabilityPanel.createListingTitle" />
         )}
       </h1>
       <EditProgramListingAvailabilityForm

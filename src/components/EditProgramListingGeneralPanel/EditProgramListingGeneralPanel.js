@@ -3,7 +3,6 @@ import { bool, func, object, string } from 'prop-types';
 import classNames from 'classnames';
 import { FormattedMessage } from '../../util/reactIntl';
 import { ensureOwnListing } from '../../util/data';
-import { findOptionsForSelectFilter } from '../../util/search';
 import { LISTING_STATE_DRAFT } from '../../util/types';
 import { ListingLink } from '..';
 import { EditProgramListingGeneralForm } from '../../forms';
@@ -11,7 +10,11 @@ import config from '../../config';
 
 import css from './EditProgramListingGeneralPanel.module.css';
 
-const customHoursMessage = 'Custom hours';
+const customHoursMessage = config.customHoursMessage;
+
+const TWO_HOUR = 2;
+const FOUR_HOUR = 4;
+const EIGHT_HOUR = 8;
 
 const EditProgramListingGeneralPanel = props => {
   const {
@@ -42,14 +45,13 @@ const EditProgramListingGeneralPanel = props => {
     <FormattedMessage id="EditProgramListingGeneralPanel.createListingTitle" />
   );
 
-  const tags = publicData?.tags && publicData.tags;
+  const tags = publicData.tags;
+  const difficultyData = publicData?.difficulty;
+  const hoursData = publicData?.hours;
 
-  const difficultyData = publicData?.difficulty && publicData.difficulty;
-
-  const hoursData = publicData?.hours && publicData.hours;
   const initHours = {};
-  if (hoursData !== 2 && hoursData !== 4 && hoursData !== 8) {
-    initHours.hours = 'Custom hours';
+  if (hoursData !== TWO_HOUR && hoursData !== FOUR_HOUR && hoursData !== EIGHT_HOUR) {
+    initHours.hours = customHoursMessage;
     initHours.customHours = hoursData;
   } else {
     initHours.hours = hoursData;
@@ -74,7 +76,11 @@ const EditProgramListingGeneralPanel = props => {
           const updateValues = {
             title: title.trim(),
             description,
-            publicData: { tags: tags, hours: hours === customHoursMessage ? customHours : hours, difficulty },
+            publicData: {
+              tags: tags,
+              hours: hours === customHoursMessage ? customHours : hours,
+              difficulty,
+            },
           };
 
           onSubmit(updateValues);

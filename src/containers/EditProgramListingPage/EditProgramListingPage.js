@@ -166,10 +166,7 @@ export const EditProgramListingPageComponent = props => {
 
     const title = isNewListingFlow
       ? intl.formatMessage({ id: 'EditListingPage.titleCreateListing' })
-      : intl.formatMessage({ id: 'EditListingPage.titleEditListing' });
-
-      // console.log(history)
-    
+      : intl.formatMessage({ id: 'EditListingPage.titleEditListing' });    
 
     return (
       <Page title={title} scrollingDisabled={scrollingDisabled}>
@@ -297,7 +294,7 @@ EditProgramListingPageComponent.propTypes = {
 };
 
 const mapStateToProps = state => {
-  const page = state.EditListingPage;
+  const page = state.EditProgramListingPage;
   const {
     getAccountLinkInProgress,
     getAccountLinkError,

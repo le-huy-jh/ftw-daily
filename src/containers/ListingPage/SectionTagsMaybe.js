@@ -10,7 +10,7 @@ const SectionTagsMaybe = ({ className, rootClassName, publicData }) => {
   return publicData && publicData.tags ? (
     <div className={classes}>
       <h2 className={css.descriptionTitle}>
-        <FormattedMessage id="ListingPage.rulesTitle" />
+        <FormattedMessage id="ListingPage.tagsTitle" />
       </h2>
       <p className={css.rules}>{publicData.tags}</p>
     </div>

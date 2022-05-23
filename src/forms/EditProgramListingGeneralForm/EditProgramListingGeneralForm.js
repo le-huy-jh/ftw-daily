@@ -5,7 +5,13 @@ import { Form as FinalForm } from 'react-final-form';
 import { intlShape, injectIntl, FormattedMessage } from '../../util/reactIntl';
 import classNames from 'classnames';
 import { propTypes } from '../../util/types';
-import { maxLength, required, composeValidators, requiredNumber } from '../../util/validators';
+import {
+  maxLength,
+  required,
+  composeValidators,
+  requiredNumber,
+  greaterThanZero,
+} from '../../util/validators';
 import {
   Form,
   Button,
@@ -16,12 +22,16 @@ import {
 import { findOptionsForSelectFilter } from '../../util/search';
 import { filters as filterConfig } from '../../marketplace-custom-config';
 import arrayMutators from 'final-form-arrays';
+import config from '../../config';
 
 import css from './EditProgramListingGeneralForm.module.css';
 
+const { customHoursMessage, difficultyKey } = config;
 const TITLE_MAX_LENGTH = 60;
 
-const customHoursMessage = 'Custom hours';
+const TWO_HOUR_OPTION = '2';
+const FOUR_HOUR_OPTION = '4';
+const EIGHT_HOUR_OPTION = '8';
 
 const EditProgramListingGeneralForm = props => {
   return (
@@ -44,7 +54,6 @@ const EditProgramListingGeneralForm = props => {
           fetchErrors,
         } = formRenderProps;
 
-        console.log(values);
         const customHoursRequiredNumberMessage = intl.formatMessage({
           id: 'EditProgramListingGeneralForm.hoursCustomPlaceholderRequiredNumber',
         });
@@ -94,6 +103,9 @@ const EditProgramListingGeneralForm = props => {
         const tagsRequiredMessage = intl.formatMessage({
           id: 'EditProgramListingGeneralForm.tagsRequired',
         });
+        const hoursGreaterThanZero = intl.FormattedMessage({
+          id: 'EditProgramListingGeneralForm.hoursGreaterThanZero',
+        });
 
         const { updateListingError, createListingDraftError, showListingsError } =
           fetchErrors || {};
@@ -121,7 +133,6 @@ const EditProgramListingGeneralForm = props => {
         const submitInProgress = updateInProgress;
         const submitDisabled = invalid || disabled || submitInProgress;
 
-        const difficultyKey = 'difficulty';
         const difficultyOptions = findOptionsForSelectFilter(difficultyKey, filterConfig);
 
         return (
@@ -172,41 +183,44 @@ const EditProgramListingGeneralForm = props => {
 
             <div>Hours</div>
             <FieldRadioButton
-              label="2"
-              id="2"
+              label={TWO_HOUR_OPTION}
+              id={TWO_HOUR_OPTION}
               name="hours"
-              value={'2'}
+              value={TWO_HOUR_OPTION}
               validate={required(hoursRequiredMessage)}
             />
             <FieldRadioButton
-              label="4"
-              id="4"
+              label={FOUR_HOUR_OPTION}
+              id={FOUR_HOUR_OPTION}
               name="hours"
-              value={'4'}
+              value={FOUR_HOUR_OPTION}
               validate={required(hoursRequiredMessage)}
             />
             <FieldRadioButton
-              label="8"
-              id="8"
+              label={EIGHT_HOUR_OPTION}
+              id={EIGHT_HOUR_OPTION}
               name="hours"
-              value={'8'}
+              value={EIGHT_HOUR_OPTION}
               validate={required(hoursRequiredMessage)}
             />
             <FieldRadioButton
               label={customHoursMessage}
               id={customHoursMessage}
               name="hours"
-              value={'Custom hours'}
+              value={customHoursMessage}
               validate={required(hoursRequiredMessage)}
             />
             {values.hours === customHoursMessage && (
               <FieldTextInput
                 id="customHoursInput"
-                name='customHours'
+                name="customHours"
                 className={css.title}
                 type="number"
                 placeholder={hoursPlaceholder}
-                validate={required(customHoursRequiredNumberMessage)}
+                validate={composeValidators(
+                  required(customHoursRequiredNumberMessage),
+                  greaterThanZero(hoursGreaterThanZero)
+                )}
               />
             )}
 
@@ -242,12 +256,6 @@ EditProgramListingGeneralForm.propTypes = {
     showListingsError: propTypes.error,
     updateListingError: propTypes.error,
   }),
-  categories: arrayOf(
-    shape({
-      key: string.isRequired,
-      label: string.isRequired,
-    })
-  ),
 };
 
 export default compose(injectIntl)(EditProgramListingGeneralForm);

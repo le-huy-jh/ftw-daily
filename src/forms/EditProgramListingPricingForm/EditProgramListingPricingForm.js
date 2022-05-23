@@ -4,7 +4,7 @@ import { compose } from 'redux';
 import { Form as FinalForm } from 'react-final-form';
 import { intlShape, injectIntl, FormattedMessage } from '../../util/reactIntl';
 import classNames from 'classnames';
-import { LINE_ITEM_DAY, LINE_ITEM_NIGHT, propTypes } from '../../util/types';
+import { propTypes } from '../../util/types';
 import {
   Form,
   Button,
@@ -12,19 +12,22 @@ import {
   FieldCurrencyInput,
   FieldRadioButton,
 } from '../../components';
-import * as validators from '../../util/validators';
 import { formatMoney } from '../../util/currency';
 import { types as sdkTypes } from '../../util/sdkLoader';
-import { required, composeValidators, requiredNumber } from '../../util/validators';
+import {
+  required,
+  composeValidators,
+  moneySubUnitAmountAtLeast,
+  greaterThanZero,
+} from '../../util/validators';
 
 import css from './EditProgramListingPricingForm.module.css';
 import config from '../../config';
+import { PRICING_TYPE_HOURLY, PRICING_TYPE_PACKAGE } from '../../marketplace-custom-config';
 
 const { Money } = sdkTypes;
 
-const PRICING_TYPE_PACKAGE = 'package';
-const PRICING_TYPE_HOURLY = 'hourly';
-const currencyUnit = process.env.REACT_APP_SHARETRIBE_MARKETPLACE_CURRENCY;
+const currencyUnit = config.currencyConfig.currency;
 
 const EditProgramListingPricingForm = props => (
   <FinalForm
@@ -45,12 +48,8 @@ const EditProgramListingPricingForm = props => (
         values,
       } = formRenderProps;
 
-      const unitType = config.bookingUnitType;
-      const isNightly = unitType === LINE_ITEM_NIGHT;
-      const isDaily = unitType === LINE_ITEM_DAY;
-
       const translationKey =
-        values.pricingType === 'hourly'
+        values.pricingType === PRICING_TYPE_HOURLY
           ? 'EditProgramListingPricingForm.pricePerHour'
           : 'EditProgramListingPricingForm.pricePerPackage';
 
@@ -59,7 +58,11 @@ const EditProgramListingPricingForm = props => (
       });
 
       const pricingTypeRequiredMessage = intl.formatMessage({
-        id: 'EditProgramListingPricingPanel.pricingTypeRequired',
+        id: 'EditProgramListingPricingForm.pricingTypeRequired',
+      });
+
+      const quantityGreaterThanZeroMessage = intl.formatMessage({
+        id: 'EditProgramListingPricingForm.quantityGreaterThanZero',
       });
 
       const pricePlaceholderMessage = intl.formatMessage({
@@ -70,16 +73,36 @@ const EditProgramListingPricingForm = props => (
         id: 'EditProgramListingPricingForm.quantityRequired',
       });
 
-      const priceRequired = validators.required(
+      const quantityLabel = intl.formatMessage({
+        id: 'EditProgramListingPricingForm.quantityLabel',
+      });
+
+      const hourlyLabel = intl.formatMessage({
+        id: 'EditProgramListingPricingForm.hourlyLabel',
+      });
+
+      const hoursLabel = intl.formatMessage({
+        id: 'EditProgramListingPricingForm.hoursLabel',
+      });
+
+      const packageLabel = intl.formatMessage({
+        id: 'EditProgramListingPricingForm.packageLabel',
+      });
+
+      const totalPriceMessage = intl.formatMessage({
+        id: 'EditProgramListingPricingForm.totalPrice',
+      });
+
+      const priceRequired = required(
         intl.formatMessage({
-          id: 'EditListingPricingForm.priceRequired',
+          id: 'EditProgramListingPricingForm.priceRequired',
         })
       );
       const minPrice = new Money(config.listingMinimumPriceSubUnits, config.currency);
-      const minPriceRequired = validators.moneySubUnitAmountAtLeast(
+      const minPriceRequired = moneySubUnitAmountAtLeast(
         intl.formatMessage(
           {
-            id: 'EditListingPricingForm.priceTooLow',
+            id: 'EditProgramListingPricingForm.priceTooLow',
           },
           {
             minPrice: formatMoney(intl, minPrice),
@@ -87,9 +110,15 @@ const EditProgramListingPricingForm = props => (
         ),
         config.listingMinimumPriceSubUnits
       );
+
       const priceValidators = config.listingMinimumPriceSubUnits
-        ? validators.composeValidators(priceRequired, minPriceRequired)
+        ? composeValidators(priceRequired, minPriceRequired)
         : priceRequired;
+
+      const quantityValidators = composeValidators(
+        required(quantityRequiredMessage),
+        greaterThanZero(quantityGreaterThanZeroMessage)
+      );
 
       const classes = classNames(css.root, className);
       const submitReady = (updated && pristine) || ready;
@@ -98,12 +127,13 @@ const EditProgramListingPricingForm = props => (
       const { updateListingError, showListingsError } = fetchErrors || {};
 
       const { pricingType = PRICING_TYPE_HOURLY, price, quantity = 0, hours } = values;
-      let totalPrice = new Money(0, currencyUnit);
-      if (values.price) {
-        const totalAmount =
-          pricingType === PRICING_TYPE_PACKAGE ? quantity * price.amount : hours * price.amount;
-        totalPrice = new Money(totalAmount, currencyUnit);
-      }
+
+      const totalPrice = values.price
+        ? new Money(
+            pricingType === PRICING_TYPE_PACKAGE ? quantity * price.amount : hours * price.amount,
+            currencyUnit
+          )
+        : new Money(0, currencyUnit);
 
       return (
         <Form onSubmit={handleSubmit} className={classes}>
@@ -119,39 +149,39 @@ const EditProgramListingPricingForm = props => (
           ) : null}
           <div>Pricing type</div>
           <FieldRadioButton
-            label="Package"
+            label={packageLabel}
             id={PRICING_TYPE_PACKAGE}
             name="pricingType"
             value={PRICING_TYPE_PACKAGE}
-            validate={validators.required(pricingTypeRequiredMessage)}
+            validate={required(pricingTypeRequiredMessage)}
           />
           <FieldRadioButton
-            label="Hourly"
+            label={hourlyLabel}
             id={PRICING_TYPE_HOURLY}
             name="pricingType"
             value={PRICING_TYPE_HOURLY}
             validate={required(pricingTypeRequiredMessage)}
           />
 
-          {values.pricingType === 'hourly' && (
+          {values.pricingType === PRICING_TYPE_HOURLY && (
             <FieldTextInput
               id="hours"
               name="hours"
               className={css.hours}
               type="text"
-              label="Hours"
+              label={hoursLabel}
               disabled
             />
           )}
 
-          {values.pricingType === 'package' && (
+          {values.pricingType === PRICING_TYPE_PACKAGE && (
             <FieldTextInput
               id="packageQuantity"
               name="packageQuantity"
               className={css.hours}
               type="number"
-              label="Quantity"
-              validate={required(quantityRequiredMessage)}
+              label={quantityLabel}
+              validate={quantityValidators}
             />
           )}
 
@@ -167,7 +197,7 @@ const EditProgramListingPricingForm = props => (
           />
 
           <div>
-            Total price: {totalPrice.amount / 100} {currencyUnit}
+            {totalPriceMessage}: {totalPrice.amount / 100} {currencyUnit}
           </div>
 
           <Button
@@ -201,12 +231,6 @@ EditProgramListingPricingForm.propTypes = {
     showListingsError: propTypes.error,
     updateListingError: propTypes.error,
   }),
-  categories: arrayOf(
-    shape({
-      key: string.isRequired,
-      label: string.isRequired,
-    })
-  ),
 };
 
 export default compose(injectIntl)(EditProgramListingPricingForm);

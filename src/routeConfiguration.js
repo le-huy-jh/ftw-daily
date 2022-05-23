@@ -126,6 +126,13 @@ const routeConfiguration = () => {
       component: EditListingPage,
       loadData: pageDataLoadingAPI.EditListingPage.loadData,
     },
+    {
+      path: '/pl/:slug/:id/:type/:tab/:returnURLType',
+      name: 'EditProgramListingStripeOnboardingPage',
+      auth: true,
+      component: EditListingPage,
+      loadData: pageDataLoadingAPI.EditListingPage.loadData,
+    },
 
     {
       path: '/pl/new',
@@ -147,7 +154,7 @@ const routeConfiguration = () => {
     },
     {
       path: '/pl/:slug/:id/:type/:tab/:returnURLType',
-      name: 'EditListingStripeOnboardingPage',
+      name: 'EditProgramListingStripeOnboardingPage',
       auth: true,
       component: EditProgramListingPage,
       loadData: pageDataLoadingAPI.EditProgramListingPage.loadData,

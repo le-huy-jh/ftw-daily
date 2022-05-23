@@ -202,3 +202,6 @@ export const sortConfig = {
     { key: 'relevance', label: 'Relevance', longLabel: 'Relevance (Keyword search)' },
   ],
 };
+
+export const PRICING_TYPE_PACKAGE = 'package';
+export const PRICING_TYPE_HOURLY = 'hourly';

@@ -29,21 +29,17 @@ const EditProgramListingPricingPanel = props => {
     updateInProgress,
     errors,
   } = props;
-  const currencyUnit = process.env.REACT_APP_SHARETRIBE_MARKETPLACE_CURRENCY;
+  const currencyUnit = config.currencyConfig.currency;
   const classes = classNames(rootClassName || css.root, className);
   const currentListing = ensureOwnListing(listing);
   const { publicData, price } = currentListing.attributes;
-  const hours = publicData.hours;
-  const pricingType = publicData.pricingType || PRICING_TYPE_HOURLY;
-  const packageQuantity = publicData && publicData.packageQuantity;
+  const { hours, pricingType = PRICING_TYPE_HOURLY, packageQuantity } = publicData;
   const pricePerItem =
     publicData.pricingType === PRICING_TYPE_HOURLY
       ? new Money(price.amount / hours, currencyUnit)
       : pricingType === PRICING_TYPE_PACKAGE
       ? new Money(price.amount / packageQuantity, currencyUnit)
       : null;
-    
-      console.log(pricePerItem)
 
   const isPublished = currentListing.id && currentListing.attributes.state !== LISTING_STATE_DRAFT;
   const panelTitle = isPublished ? (
@@ -66,17 +62,15 @@ const EditProgramListingPricingPanel = props => {
           const { pricingType, hours, packageQuantity, price } = values;
 
           const totalAmount =
-            pricingType === PRICING_TYPE_PACKAGE ? quantity * price.amount : hours * price.amount;
+            pricingType === PRICING_TYPE_PACKAGE
+              ? packageQuantity * price.amount
+              : hours * price.amount;
           const totalPrice = new Money(totalAmount, currencyUnit);
 
           const updateValues = {
-            publicData: { pricingType },
+            publicData: { pricingType, packageQuantity },
             price: totalPrice,
           };
-
-          if (pricingType !== PRICING_TYPE_HOURLY) {
-            updateValues.publicData.packageQuantity = packageQuantity;
-          }
 
           onSubmit(updateValues);
         }}
