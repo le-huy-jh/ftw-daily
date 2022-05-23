@@ -206,6 +206,7 @@
   "EditProgramListingPricingForm.totalPrice": "Total price:",
   "EditProgramListingGeneralForm.categoryLabel": "Sauna type",
   "EditProgramListingGeneralForm.hoursGreaterThanZero": "Hour must be greater than zero",
+  "EditProgramListingGeneralForm.quantityIsInt": "Quantity must be integer",
   "EditProgramListingGeneralForm.difficultyLabel": "Difficulty",
   "EditProgramListingGeneralForm.categoryPlaceholder": "Choose the type of your sauna…",
   "EditProgramListingGeneralForm.hoursCustomPlaceholder": "Type your custom hours",

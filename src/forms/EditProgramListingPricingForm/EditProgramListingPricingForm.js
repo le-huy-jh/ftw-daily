@@ -19,6 +19,7 @@ import {
   composeValidators,
   moneySubUnitAmountAtLeast,
   greaterThanZero,
+  isInt,
 } from '../../util/validators';
 
 import css from './EditProgramListingPricingForm.module.css';
@@ -55,6 +56,10 @@ const EditProgramListingPricingForm = props => (
 
       const pricePerUnitMessage = intl.formatMessage({
         id: translationKey,
+      });
+
+      const quantityIsIntMessage = intl.formatMessage({
+        id: 'EditProgramListingPricingForm.quantityIsInt',
       });
 
       const pricingTypeRequiredMessage = intl.formatMessage({
@@ -117,7 +122,8 @@ const EditProgramListingPricingForm = props => (
 
       const quantityValidators = composeValidators(
         required(quantityRequiredMessage),
-        greaterThanZero(quantityGreaterThanZeroMessage)
+        greaterThanZero(quantityGreaterThanZeroMessage),
+        isInt(quantityIsIntMessage)
       );
 
       const classes = classNames(css.root, className);

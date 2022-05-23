@@ -63,6 +63,10 @@ export const minLength = (message, minimumLength) => value => {
   return hasLength && value.length >= minimumLength ? VALID : message;
 };
 
+export const isInt = message => value => {
+  return value % 1 === 0 ? VALID : message;
+};
+
 export const maxLength = (message, maximumLength) => value => {
   if (!value) {
     return VALID;
