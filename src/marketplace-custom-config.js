@@ -143,6 +143,36 @@ export const filters = [
       ],
     },
   },
+  {
+    id: 'difficulty',
+    label: 'Difficulty',
+    type: 'SelectMultipleFilter',
+    group: 'secondary',
+    queryParamNames: ['pub_difficulty'],
+    config: {
+      searchMode: 'has_all',
+      options: [
+        { key: 'beginer', label: 'Beginer' },
+        { key: 'intermediate', label: 'Intermediate' },
+        { key: 'advanced', label: 'Advanced' },
+        { key: 'expert', label: 'Expert' },
+      ],
+    },
+  },
+  {
+    id: 'typeLocation',
+    label: 'Type',
+    type: 'SelectMultipleFilter',
+    group: 'secondary',
+    queryParamNames: ['pub_typeLocation'],
+    config: {
+      searchMode: 'has_all',
+      options: [
+        { key: 'online', label: 'Online' },
+        { key: 'on-site', label: 'On-site' },
+      ],
+    },
+  },
 ];
 
 export const sortConfig = {
@@ -172,3 +202,6 @@ export const sortConfig = {
     { key: 'relevance', label: 'Relevance', longLabel: 'Relevance (Keyword search)' },
   ],
 };
+
+export const PRICING_TYPE_PACKAGE = 'package';
+export const PRICING_TYPE_HOURLY = 'hourly';

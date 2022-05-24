@@ -34,6 +34,10 @@ export const requiredStringNoTrim = message => value => {
   return typeof value === 'string' && value.length > 0 ? VALID : message;
 };
 
+export const greaterThanZero = message => value => {
+  return value > 0 ? VALID : message;
+};
+
 // DEPRECATED in favor of required
 export const requiredBoolean = message => value => {
   return typeof value === 'boolean' ? VALID : message;
@@ -57,6 +61,10 @@ export const requiredFieldArrayCheckbox = message => value => {
 export const minLength = (message, minimumLength) => value => {
   const hasLength = value && typeof value.length === 'number';
   return hasLength && value.length >= minimumLength ? VALID : message;
+};
+
+export const isInt = message => value => {
+  return value % 1 === 0 ? VALID : message;
 };
 
 export const maxLength = (message, maximumLength) => value => {

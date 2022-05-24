@@ -6,6 +6,8 @@ import { currencyConfiguration } from './currency-config';
 const env = process.env.REACT_APP_ENV;
 const dev = process.env.REACT_APP_ENV === 'development';
 
+const customHoursMessage = 'Custom hours';
+
 // If you want to change the language, remember to also change the
 // locale data and the messages in the app.js file.
 const locale = 'en';
@@ -189,6 +191,9 @@ const maps = {
   },
 };
 
+const onSiteSelection = 'on-site';
+const difficultyKey = 'difficulty';
+
 // NOTE: only expose configuration that should be visible in the
 // client side, don't add any server secrets in this file.
 const config = {
@@ -230,6 +235,9 @@ const config = {
   usingSSL,
   maps,
   custom,
+  customHoursMessage,
+  onSiteSelection,
+  difficultyKey,
 };
 
 export default config;
