@@ -34,6 +34,7 @@ import {
   sendReview,
   fetchMoreMessages,
   fetchTransactionLineItems,
+  cancelBookingByCustomer,
 } from './TransactionPage.duck';
 import css from './TransactionPage.module.css';
 
@@ -81,6 +82,9 @@ export const TransactionPageComponent = props => {
     lineItems,
     fetchLineItemsInProgress,
     fetchLineItemsError,
+    onCancelBookingByCustomer,
+    cancelBookingInProgress,
+    cancelBookingError,
   } = props;
 
   const currentTransaction = ensureTransaction(transaction);
@@ -250,6 +254,9 @@ export const TransactionPageComponent = props => {
       lineItems={lineItems}
       fetchLineItemsInProgress={fetchLineItemsInProgress}
       fetchLineItemsError={fetchLineItemsError}
+      onCancelBookingByCustomer={onCancelBookingByCustomer}
+      cancelBookingInProgress={cancelBookingInProgress}
+      cancelBookingError={cancelBookingError}
     />
   ) : (
     loadingOrFailedFetching
@@ -321,7 +328,9 @@ TransactionPageComponent.propTypes = {
   callSetInitialValues: func.isRequired,
   onInitializeCardPaymentData: func.isRequired,
   onFetchTransactionLineItems: func.isRequired,
-
+  onCancelBookingByCustomer: func.isRequired,
+  cancelBookingInProgress: bool.isRequired,
+  cancelBookingError: propTypes.error,
   // line items
   lineItems: array,
   fetchLineItemsInProgress: bool.isRequired,
@@ -364,6 +373,8 @@ const mapStateToProps = state => {
     lineItems,
     fetchLineItemsInProgress,
     fetchLineItemsError,
+    cancelBookingInProgress,
+    cancelBookingError,
   } = state.TransactionPage;
   const { currentUser } = state.user;
 
@@ -396,6 +407,8 @@ const mapStateToProps = state => {
     lineItems,
     fetchLineItemsInProgress,
     fetchLineItemsError,
+    cancelBookingInProgress,
+    cancelBookingError,
   };
 };
 
@@ -413,6 +426,8 @@ const mapDispatchToProps = dispatch => {
     onInitializeCardPaymentData: () => dispatch(initializeCardPaymentData()),
     onFetchTransactionLineItems: (bookingData, listingId, isOwnListing) =>
       dispatch(fetchTransactionLineItems(bookingData, listingId, isOwnListing)),
+    onCancelBookingByCustomer: transactionId =>
+      cancelBookingByCustomer(transactionId),
   };
 };
 

@@ -12,6 +12,7 @@ import {
   txIsInFirstReviewBy,
   TRANSITION_ACCEPT,
   TRANSITION_DECLINE,
+  TRANSITION_CANCEL_PREAUTHORIZED_BY_CUSTOMER,
 } from '../../util/transaction';
 import { transactionLineItems } from '../../util/api';
 import * as log from '../../util/log';
@@ -22,6 +23,7 @@ import {
 } from '../../util/data';
 import { addMarketplaceEntities } from '../../ducks/marketplaceData.duck';
 import { fetchCurrentUserNotifications } from '../../ducks/user.duck';
+import { response } from 'express';
 
 const { UUID } = sdkTypes;
 
@@ -68,6 +70,10 @@ export const FETCH_LINE_ITEMS_REQUEST = 'app/TransactionPage/FETCH_LINE_ITEMS_RE
 export const FETCH_LINE_ITEMS_SUCCESS = 'app/TransactionPage/FETCH_LINE_ITEMS_SUCCESS';
 export const FETCH_LINE_ITEMS_ERROR = 'app/TransactionPage/FETCH_LINE_ITEMS_ERROR';
 
+export const CANCEL_BOOKING_REQUEST = 'app/TransactionPage/CANCEL_BOOKING_REQUEST';
+export const CANCEL_BOOKING_SUCCESS = 'app/TransactionPageCANCEL_BOOKINGE_SUCCESS';
+export const CANCEL_BOOKING_ERROR = 'app/TransactionPage/CANCEL_BOOKING_ERROR';
+
 // ================ Reducer ================ //
 
 const initialState = {
@@ -98,6 +104,8 @@ const initialState = {
   lineItems: null,
   fetchLineItemsInProgress: false,
   fetchLineItemsError: null,
+  cancelBookingInProgress: false,
+  cancelBookingError: null,
 };
 
 // Merge entity arrays using ids, so that conflicting items in newer array (b) overwrite old values (a).
@@ -199,6 +207,13 @@ export default function checkoutPageReducer(state = initialState, action = {}) {
     case FETCH_LINE_ITEMS_ERROR:
       return { ...state, fetchLineItemsInProgress: false, fetchLineItemsError: payload };
 
+    case CANCEL_BOOKING_REQUEST:
+      return { ...state, cancelBookingInProgress: true, cancelBookingError: null };
+    case CANCEL_BOOKING_SUCCESS:
+      return { ...state, cancelBookingInProgress: false };
+    case CANCEL_BOOKING_ERROR:
+      return { ...state, cancelBookingInProgress: false, cancelBookingError: payload };
+
     default:
       return state;
   }
@@ -275,10 +290,42 @@ export const fetchLineItemsError = error => ({
   payload: error,
 });
 
+const cancelBookingRequest = () => ({ type: CANCEL_BOOKING_REQUEST });
+const cancelBookingSuccess = () => ({ type: CANCEL_BOOKING_SUCCESS });
+const cancelBookingError = e => ({ type: CANCEL_BOOKING_ERROR, error: true, payload: e });
+
 // ================ Thunks ================ //
 
 const listingRelationship = txResponse => {
   return txResponse.data.data.relationships.listing.data;
+};
+
+export const cancelBookingByCustomer = transactionId => {
+  dispatch(cancelBookingRequest());
+
+  return sdk.transactions
+    .transition(
+      {
+        id: transactionId,
+        transition: TRANSITION_CANCEL_PREAUTHORIZED_BY_CUSTOMER,
+        params: {},
+      },
+      { expand: true }
+    )
+    .then(response => {
+      dispatch(addMarketplaceEntities(response));
+      dispatch(cancelBookingSuccess());
+      dispatch(fetchCurrentUserNotifications());
+      return response;
+    })
+    .catch(e => {
+      dispatch(cancelBookingError(storableError(e)));
+      log.error(e, 'cancel-booking-before-accepted-by-customer-failed', {
+        txId: transactionId,
+        transition: TRANSITION_CANCEL_PREAUTHORIZED_BY_CUSTOMER,
+      });
+      throw e;
+    });
 };
 
 export const fetchTransaction = (id, txRole) => (dispatch, getState, sdk) => {
