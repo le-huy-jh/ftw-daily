@@ -54,6 +54,12 @@ export const TRANSITION_EXPIRE_CUSTOMER_REVIEW_PERIOD = 'transition/expire-custo
 export const TRANSITION_EXPIRE_PROVIDER_REVIEW_PERIOD = 'transition/expire-provider-review-period';
 export const TRANSITION_EXPIRE_REVIEW_PERIOD = 'transition/expire-review-period';
 
+export const TRANSITION_CANCEL_PREAUTHORIZED_BY_CUSTOMER = 'transition/cancel-preauthorized-by-customer';
+export const TRANSITION_CANCEL_BY_CUSTOMER = 'transition/cancel-by-customer';
+export const TRANSITION_CANCEL_WITH_NO_REFUND = 'transition/cancel-with-no-refund';
+export const TRANSITION_CANCEL_WITH_REFUND = 'transition/cancel-with-refund';
+export const TRANSITION_CANCEL_BY_PROVIDER = 'transition/cancel-by-provider';
+
 /**
  * Actors
  *
@@ -89,7 +95,8 @@ const STATE_PAYMENT_EXPIRED = 'payment-expired';
 const STATE_PREAUTHORIZED = 'preauthorized';
 const STATE_DECLINED = 'declined';
 const STATE_ACCEPTED = 'accepted';
-const STATE_CANCELED = 'canceled';
+const STATE_CANCELED = 'cancelled';
+const STATE_CANCELED_BY_CUSTOMER = 'cancelled-by-customer';
 const STATE_DELIVERED = 'delivered';
 const STATE_REVIEWED = 'reviewed';
 const STATE_REVIEWED_BY_CUSTOMER = 'reviewed-by-customer';
@@ -108,7 +115,7 @@ const stateDescription = {
   // id is defined only to support Xstate format.
   // However if you have multiple transaction processes defined,
   // it is best to keep them in sync with transaction process aliases.
-  id: 'flex-default-process/release-1',
+  id: 'huy-test-proccess/release-1',
 
   // This 'initial' state is a starting point for new transaction
   initial: STATE_INITIAL,
@@ -140,6 +147,7 @@ const stateDescription = {
         [TRANSITION_DECLINE]: STATE_DECLINED,
         [TRANSITION_EXPIRE]: STATE_DECLINED,
         [TRANSITION_ACCEPT]: STATE_ACCEPTED,
+        [TRANSITION_CANCEL_PREAUTHORIZED_BY_CUSTOMER]: STATE_CANCELED_BY_CUSTOMER,
       },
     },
 
@@ -148,6 +156,8 @@ const stateDescription = {
       on: {
         [TRANSITION_CANCEL]: STATE_CANCELED,
         [TRANSITION_COMPLETE]: STATE_DELIVERED,
+        [TRANSITION_CANCEL_BY_CUSTOMER]: STATE_CANCELED_BY_CUSTOMER,
+        [TRANSITION_CANCEL_BY_PROVIDER]: STATE_CANCELED,
       },
     },
 
@@ -308,6 +318,11 @@ export const isRelevantPastTransition = transition => {
     TRANSITION_REVIEW_1_BY_PROVIDER,
     TRANSITION_REVIEW_2_BY_CUSTOMER,
     TRANSITION_REVIEW_2_BY_PROVIDER,
+    TRANSITION_CANCEL_PREAUTHORIZED_BY_CUSTOMER,
+    TRANSITION_CANCEL_BY_CUSTOMER,
+    TRANSITION_CANCEL_WITH_NO_REFUND,
+    TRANSITION_CANCEL_WITH_REFUND,
+    TRANSITION_CANCEL_BY_PROVIDER,
   ].includes(transition);
 };
 
