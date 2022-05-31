@@ -1,8 +1,8 @@
 const { transactionLineItems } = require('../api-util/lineItems');
 const { getSdk, handleError, serialize } = require('../api-util/sdk');
-const { constructValidLineItems } = require('../api-util/lineItemHelpers');
+const { constructValidLineItems, getCurrentUserHasOrderDelivered } = require('../api-util/lineItemHelpers');
 
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   const { isOwnListing, listingId, bookingData } = req.body;
 
   const sdk = getSdk(req, res);
@@ -11,10 +11,13 @@ module.exports = (req, res) => {
     ? sdk.ownListings.show({ id: listingId })
     : sdk.listings.show({ id: listingId });
 
+  const ordersDeliveredRes = await getCurrentUserHasOrderDelivered(sdk);
+  const hasOrdersDelivered = ordersDeliveredRes.data.data && ordersDeliveredRes.data.data.length > 0;
+
   listingPromise
     .then(apiResponse => {
       const listing = apiResponse.data.data;
-      const lineItems = transactionLineItems(listing, bookingData);
+      const lineItems = transactionLineItems(listing, bookingData, hasOrdersDelivered);
 
       // Because we are using returned lineItems directly in FTW we need to use the helper function
       // to add some attributes like lineTotal and reversal that Marketplace API also adds to the response.

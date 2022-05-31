@@ -1,7 +1,8 @@
+const { getCurrentUserHasOrderDelivered } = require('../api-util/lineItemHelpers');
 const { transactionLineItems } = require('../api-util/lineItems');
 const { getSdk, getTrustedSdk, handleError, serialize } = require('../api-util/sdk');
 
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   const { isSpeculative, bookingData, bodyParams, queryParams } = req.body;
 
   const listingId = bodyParams && bodyParams.params ? bodyParams.params.listingId : null;
@@ -9,11 +10,15 @@ module.exports = (req, res) => {
   const sdk = getSdk(req, res);
   let lineItems = null;
 
+  const ordersDeliveredRes = await getCurrentUserHasOrderDelivered(sdk);
+  const hasOrdersDelivered =
+    ordersDeliveredRes.data.data && ordersDeliveredRes.data.data.length > 0;
+
   sdk.listings
     .show({ id: listingId })
     .then(listingResponse => {
       const listing = listingResponse.data.data;
-      lineItems = transactionLineItems(listing, bookingData);
+      lineItems = transactionLineItems(listing, bookingData, hasOrdersDelivered);
 
       return getTrustedSdk(req);
     })

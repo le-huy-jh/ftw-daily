@@ -203,3 +203,26 @@ exports.constructValidLineItems = lineItems => {
   });
   return lineItemsWithTotals;
 };
+
+exports.getCurrentUserHasOrderDelivered = sdk => {
+  const params = {
+    only: 'order',
+    lastTransitions: [
+      'transition/complete',
+      'transition/review-1-by-provider',
+      'transition/review-2-by-provider',
+      'transition/review-1-by-customer',
+      'transition/review-2-by-customer',
+      'transition/expire-review-period',
+      'transition/expire-provider-review-period',
+      'transition/expire-customer-review-period',
+      'transition/payout-at-delivered',
+      'transition/payout-at-reviewed',
+      'transition/payout-at-reviewed-by-customer',
+      'transition/payout-at-reviewed-by-provider',
+    ],
+    page: 1,
+    per_page: 1,
+  };
+  return sdk.transactions.query(params);
+};
