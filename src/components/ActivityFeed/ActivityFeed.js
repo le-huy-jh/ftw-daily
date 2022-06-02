@@ -17,6 +17,10 @@ import {
   TRANSITION_REVIEW_1_BY_PROVIDER,
   TRANSITION_REVIEW_2_BY_CUSTOMER,
   TRANSITION_REVIEW_2_BY_PROVIDER,
+  TRANSITION_CANCEL_PREAUTHORIZED_BY_CUSTOMER,
+  TRANSITION_CANCEL_BY_CUSTOMER,
+  TRANSITION_CANCEL_WITH_REFUND,
+  TRANSITION_CANCEL_BY_PROVIDER,
   transitionIsReviewed,
   txIsDelivered,
   txIsInFirstReviewBy,
@@ -116,6 +120,30 @@ const resolveTransitionMessage = (
   const displayName = otherUsersName;
 
   switch (currentTransition) {
+    case TRANSITION_CANCEL_PREAUTHORIZED_BY_CUSTOMER:
+      return isOwnTransition ? (
+        <FormattedMessage id="ActivityFeed.ownTransitionCancel" />
+      ) : (
+        <FormattedMessage id="ActivityFeed.transitionCancelByPerson" values={{ displayName }} />
+      );
+    case TRANSITION_CANCEL_BY_CUSTOMER:
+      return isOwnTransition ? (
+        <FormattedMessage id="ActivityFeed.ownTransitionCancel" />
+      ) : (
+        <FormattedMessage id="ActivityFeed.transitionCancelByPerson" values={{ displayName }} />
+      );
+    case TRANSITION_CANCEL_WITH_REFUND:
+      return isOwnTransition ? (
+        <FormattedMessage id="ActivityFeed.ownTransitionCancelWithNoRefund" />
+      ) : (
+        <FormattedMessage id="ActivityFeed.transitionCancelWithNoRefund" values={{ displayName }} />
+      );
+    case TRANSITION_CANCEL_BY_PROVIDER:
+      return isOwnTransition ? (
+        <FormattedMessage id="ActivityFeed.ownTransitionCancel" />
+      ) : (
+        <FormattedMessage id="ActivityFeed.transitionCancelByPerson" values={{ displayName }} />
+      );
     case TRANSITION_CONFIRM_PAYMENT:
       return isOwnTransition ? (
         <FormattedMessage id="ActivityFeed.ownTransitionRequest" values={{ listingTitle }} />
