@@ -195,6 +195,9 @@ export class TransactionPanelComponent extends Component {
       lineItems,
       fetchLineItemsInProgress,
       fetchLineItemsError,
+      onCancelBookingByCustomer,
+      cancelBookingInProgress,
+      cancelBookingError,
     } = this.props;
 
     const currentTransaction = ensureTransaction(transaction);
@@ -241,12 +244,16 @@ export class TransactionPanelComponent extends Component {
           headingState: HEADING_REQUESTED,
           showDetailCardHeadings: isCustomer,
           showSaleButtons: isProvider && !isCustomerBanned,
+          showCancelButton: isCustomer,
+          onCancelFn: onCancelBookingByCustomer
         };
       } else if (txIsAccepted(tx)) {
         return {
           headingState: HEADING_ACCEPTED,
           showDetailCardHeadings: isCustomer,
           showAddress: isCustomer,
+          showCancelButton: isCustomer || isProvider,
+          onCancelFn: () => {}
         };
       } else if (txIsDeclined(tx)) {
         return {
